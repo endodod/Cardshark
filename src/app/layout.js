@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={vt323.className}>
       <body>
         <div className='bg-black min-h-screen flex items-center justify-center'>
-          <div className='bg-[#1a1a1a] rounded-xl shadow-2xl' style={{ maxWidth: '1100px', width: '92vw', padding: '20px 24px' }}>
+          <div className='bg-[#1a1a1a] rounded-xl shadow-2xl' style={{ maxWidth: '1600px', width: '97vw', padding: '20px 28px' }}>
 
             {/* Title bar */}
             <div style={{
@@ -43,8 +43,9 @@ export default function RootLayout({ children }) {
               className='bg-[#0a0a0a] rounded crt vignette'
               style={{
                 padding: '32px 40px',
-                height: 'clamp(560px, 68vh, 820px)',
-                overflowY: 'auto',
+                height: 'clamp(700px, 90vh, 1400px)',
+                overflow: 'hidden',
+                fontSize: 'clamp(20px, 2vw, 30px)',
               }}
             >
               {children}

@@ -1,13 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { initSound, isMuted, toggleMute } from '@/lib/soundEngine'
+import { isMuted, toggleMute } from '@/lib/soundEngine'
 
 export default function MuteButton() {
   const [muted, setMuted] = useState(false)
 
   useEffect(() => {
-    initSound()
     setMuted(isMuted())
   }, [])
 
@@ -18,16 +17,17 @@ export default function MuteButton() {
   return (
     <button
       onClick={handle}
+      data-no-skip="true"
       title={muted ? 'Unmute' : 'Mute'}
       style={{
         background: 'transparent',
-        border: '1px solid #444',
-        color: muted ? '#c03030' : '#666666',
+        border: `1px solid ${muted ? '#c03030' : '#80c080'}`,
+        color: muted ? '#c03030' : '#80c080',
         fontFamily: 'inherit',
-        fontSize: 'clamp(14px, 1.4vw, 20px)',
-        padding: '4px 14px',
+        fontSize: 'clamp(18px, 1.8vw, 26px)',
+        padding: '6px 20px',
         cursor: 'pointer',
-        letterSpacing: '0.05em',
+        letterSpacing: '0.08em',
       }}
     >
       {muted ? '[MUTED]' : '[SFX ON]'}

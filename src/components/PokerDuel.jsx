@@ -83,7 +83,7 @@ export default function PokerDuel({ variant, roundWinnings, hasPeekAdvantage, on
 
       <div style={{ color: '#666666', fontSize: '0.85em' }}>
         Payout if win: <span style={{ color: '#f0c040' }}>{PAYOUTS[variant]}x</span>
-        {' — '}Winnings at stake: <span style={{ color: '#f0c040' }}>{roundWinnings} chips</span>
+        {' — '}Winnings at stake: <span style={{ color: '#f0c040' }}>{roundWinnings} dollars</span>
       </div>
 
       {/* Community cards */}
@@ -132,7 +132,7 @@ export default function PokerDuel({ variant, roundWinnings, hasPeekAdvantage, on
             fontSize: '1.1em',
           }}
         >
-          {outcome === 'win' && `YOU WIN — +${Math.floor(roundWinnings * PAYOUTS[variant])} CHIPS`}
+          {outcome === 'win' && `YOU WIN — +${Math.floor(roundWinnings * PAYOUTS[variant])} DOLLARS`}
           {outcome === 'loss' && 'DEALER WINS — WINNINGS LOST'}
           {outcome === 'tie' && 'TIE — WINNINGS PRESERVED'}
         </motion.div>

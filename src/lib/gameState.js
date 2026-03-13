@@ -1,3 +1,5 @@
+export const WIN_TARGET = 10000
+
 export const GAME_PHASES = {
   BOOT: 'boot',
   IDLE: 'idle',

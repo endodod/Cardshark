@@ -36,7 +36,7 @@ export const MODIFIERS = [
   {
     id: 'free_double',
     label: 'FREE DOUBLE',
-    description: 'Double down costs no extra chips',
+    description: 'Double down costs no extra dollars',
     type: 'buff',
     freeDoubleDown: true,
   },
@@ -64,7 +64,7 @@ export const MODIFIERS = [
   {
     id: 'jackpot',
     label: 'JACKPOT',
-    description: 'Instant +500 chips, skip the hand',
+    description: 'Instant +500 dollars, skip the hand',
     type: 'powerup',
     jackpot: true,
   },

@@ -196,7 +196,7 @@ export default function SlotMachine({ balance, onSpin, onSkip }) {
         <div style={{ display: 'flex', gap: '12px' }}>
           {!spinning && !revealedModifier && (
             <button onClick={handlePull} style={btnStyle('#f0c040')}>
-              ▶ PULL — {MACHINE_COSTS[activeMachine]} CHIPS
+              ▶ PULL — {MACHINE_COSTS[activeMachine]} DOLLARS
             </button>
           )}
           {!spinning && (
@@ -249,7 +249,7 @@ export default function SlotMachine({ balance, onSpin, onSkip }) {
                 {SHORT_LABELS[machineId]}
               </div>
               <div style={{ color: disabled ? '#333' : '#80c080', fontSize: '0.75em' }}>
-                {cost} CHIPS
+                {cost} DOLLARS
               </div>
             </div>
           )

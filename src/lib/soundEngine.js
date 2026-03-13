@@ -9,15 +9,27 @@ function getCtx() {
   return ctx
 }
 
-function resume() {
+async function resume() {
   const c = getCtx()
-  if (c && c.state === 'suspended') c.resume()
+  if (c && c.state === 'suspended') await c.resume()
   return c
 }
 
 export function initSound() {
   if (typeof window === 'undefined') return
   muted = localStorage.getItem('cardshark_muted') === '1'
+}
+
+// Registers persistent listeners so the AudioContext resumes on ANY user interaction.
+export function setupAudioUnlock() {
+  if (typeof window === 'undefined') return
+  const unlock = () => {
+    if (ctx && ctx.state === 'suspended') ctx.resume()
+    else if (!ctx) getCtx()
+  }
+  document.addEventListener('click',      unlock, { capture: true, passive: true })
+  document.addEventListener('keydown',    unlock, { capture: true, passive: true })
+  document.addEventListener('touchstart', unlock, { capture: true, passive: true })
 }
 
 export function isMuted() { return muted }
@@ -30,11 +42,11 @@ export function toggleMute() {
   return muted
 }
 
-function tone(freq, type, duration, gain = 0.3, delay = 0) {
+async function tone(freq, type, duration, gain = 0.3, delay = 0) {
   if (muted) return
-  const c = resume()
+  const c = await resume()
   if (!c) return
-  const t = c.currentTime + delay
+  const t = c.currentTime + 0.01 + delay
   const osc = c.createOscillator()
   const g = c.createGain()
   osc.connect(g)
@@ -48,11 +60,11 @@ function tone(freq, type, duration, gain = 0.3, delay = 0) {
   osc.stop(t + duration + 0.01)
 }
 
-function noise(duration, gain = 0.1, delay = 0) {
+async function noise(duration, gain = 0.1, delay = 0) {
   if (muted) return
-  const c = resume()
+  const c = await resume()
   if (!c) return
-  const t = c.currentTime + delay
+  const t = c.currentTime + 0.01 + delay
   const bufferSize = Math.ceil(c.sampleRate * duration)
   const buffer = c.createBuffer(1, bufferSize, c.sampleRate)
   const data = buffer.getChannelData(0)
@@ -104,9 +116,9 @@ export const sounds = {
     tone(350, 'triangle', 0.08, 0.2)
     tone(420, 'triangle', 0.12, 0.2, 0.1)
   },
-  roulette_spin: () => {
+  roulette_spin: async () => {
     if (muted) return
-    const c = resume()
+    const c = await resume()
     if (!c) return
     const osc = c.createOscillator()
     const g = c.createGain()
@@ -129,6 +141,17 @@ export const sounds = {
   typewriter_click: () => {
     noise(0.015, 0.12)
     tone(1400, 'square', 0.01, 0.06)
+  },
+  bill_tick: () => {
+    noise(0.025, 0.07)
+    tone(1800, 'square', 0.015, 0.04)
+    tone(1200, 'square', 0.02, 0.03, 0.018)
+  },
+  invoice_alarm: () => {
+    tone(120, 'sawtooth', 0.5, 0.18)
+    tone(90, 'sawtooth', 0.7, 0.14, 0.12)
+    tone(180, 'sawtooth', 0.4, 0.1, 0.08)
+    tone(60, 'sawtooth', 0.9, 0.09, 0.35)
   },
   boot_beep: () => {
     tone(880, 'square', 0.08, 0.15)

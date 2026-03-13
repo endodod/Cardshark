@@ -191,7 +191,7 @@ export default function RouletteGame({ roundWinnings, onWin, onLoss }) {
           }}
         >
           {result.won
-            ? `WIN — +${Math.floor(roundWinnings * result.payout)} CHIPS`
+            ? `WIN — +${Math.floor(roundWinnings * result.payout)} DOLLARS`
             : 'LOSS — WINNINGS LOST'}
         </motion.div>
       )}

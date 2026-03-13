@@ -170,9 +170,9 @@ export default function DiceGame({ offer, roundWinnings, hasLoadedDice, onWin, o
       </div>
 
       <div style={{ color: '#80c080', marginBottom: '12px' }}>
-        Winnings at stake: <span style={{ color: '#f0c040' }}>{roundWinnings} chips</span>
+        Winnings at stake: <span style={{ color: '#f0c040' }}>{roundWinnings} dollars</span>
         {' → '}
-        <span style={{ color: '#f0c040' }}>{Math.floor(roundWinnings * offer.payout)} chips if you win</span>
+        <span style={{ color: '#f0c040' }}>{Math.floor(roundWinnings * offer.payout)} dollars if you win</span>
       </div>
 
       {/* Dice display */}
@@ -202,7 +202,7 @@ export default function DiceGame({ offer, roundWinnings, hasLoadedDice, onWin, o
             fontSize: '1.1em',
           }}
         >
-          {result.passed ? `WIN — +${Math.floor(roundWinnings * offer.payout)} CHIPS` : 'FAIL — WINNINGS LOST'}
+          {result.passed ? `WIN — +${Math.floor(roundWinnings * offer.payout)} DOLLARS` : 'FAIL — WINNINGS LOST'}
         </motion.div>
       )}
 

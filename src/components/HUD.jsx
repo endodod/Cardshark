@@ -28,6 +28,8 @@ function AnimatedBalance({ value }) {
 
 export default function HUD({ balance, activeModifier }) {
   const borderColor = activeModifier?.type === 'curse' ? '#c03030' : '#80c080'
+  const WIN_TARGET = 10000
+  const pct = Math.min(100, Math.round((balance / WIN_TARGET) * 100))
 
   return (
     <div style={{
@@ -38,8 +40,13 @@ export default function HUD({ balance, activeModifier }) {
       paddingBottom: '6px',
       marginBottom: '10px',
     }}>
-      <div style={{ color: '#f0c040', fontSize: '1.2em' }}>
-        BALANCE: <AnimatedBalance value={balance} /> CHIPS
+      <div>
+        <div style={{ color: '#f0c040', fontSize: '1.2em' }}>
+          BALANCE: $<AnimatedBalance value={balance} />
+        </div>
+        <div style={{ color: '#555', fontSize: '0.65em', letterSpacing: '0.1em', marginTop: '2px' }}>
+          TARGET $10,000 — {pct}%
+        </div>
       </div>
 
       {activeModifier && (

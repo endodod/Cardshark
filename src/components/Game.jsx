@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import { initialState } from '@/lib/gameState'
+import { useState, useEffect, useMemo } from 'react'
+import { initialState, WIN_TARGET } from '@/lib/gameState'
+import { initSound, setupAudioUnlock } from '@/lib/soundEngine'
 import { selectDiceOffer } from '@/lib/diceLogic'
 import HUD from './HUD'
 import Dealer from './Dealer'
+import EnterScreen from './EnterScreen'
 import BootSequence from './BootSequence'
 import SlotMachine from './SlotMachine'
 import Blackjack from './Blackjack'
@@ -28,7 +30,13 @@ function selectPokerVariant() {
 }
 
 export default function Game() {
-  const [state, setState] = useState({ ...initialState, phase: 'boot', hasRescued: false })
+  useEffect(() => {
+    initSound()
+    setupAudioUnlock()
+  }, [])
+
+  const alreadyBooted = typeof window !== 'undefined' && sessionStorage.getItem('cardshark_booted') === '1'
+  const [state, setState] = useState({ ...initialState, phase: alreadyBooted ? 'idle' : 'enter', hasRescued: false })
   const [betInput, setBetInput] = useState('')
   const [bonusGame, setBonusGame] = useState(null)
   const [pokerVariant, setPokerVariant] = useState('blind')
@@ -39,10 +47,49 @@ export default function Game() {
     setState(prev => ({ ...prev, ...patch }))
   }
 
+  const idleDealerMessages = useMemo(() => [
+    state.hasRescued && state.balance === 100
+      ? 'You have been fronted 100. Do not forget what you owe.'
+      : 'Place your bet.',
+  ], [state.hasRescued, state.balance])
+
+  // ── ENTER ───────────────────────────────────────────────────────────────────
+  if (state.phase === 'enter') {
+    return (
+      <EnterScreen onEnter={() => updateState({ phase: 'boot' })} />
+    )
+  }
+
   // ── BOOT ────────────────────────────────────────────────────────────────────
   if (state.phase === 'boot') {
     return (
       <BootSequence onComplete={() => updateState({ phase: 'idle' })} />
+    )
+  }
+
+  // ── WIN ─────────────────────────────────────────────────────────────────────
+  if (state.balance >= WIN_TARGET) {
+    return (
+      <div style={{ fontFamily: 'inherit', lineHeight: '1.8' }}>
+        <div style={{ color: '#f0c040', fontSize: '1.4em', marginBottom: '16px' }}>
+          &gt; BALANCE: {state.balance.toLocaleString()} DOLLARS
+        </div>
+        <div style={{ color: '#80c080', marginBottom: '6px' }}>&gt; ALL DEBTS CLEARED.</div>
+        <div style={{ color: '#80c080', marginBottom: '6px' }}>&gt; INVOICE: $10,000 — PAID IN FULL.</div>
+        <div style={{ color: '#80c080', marginBottom: '24px' }}>&gt; YOU MADE IT OUT.</div>
+        <button
+          onClick={() => {
+            sessionStorage.removeItem('cardshark_booted')
+            setState({ ...initialState, phase: 'enter', hasRescued: false })
+            setBetInput('')
+            setBonusGame(null)
+            setRoundResult(null)
+          }}
+          style={btnStyle('#f0c040')}
+        >
+          PLAY AGAIN
+        </button>
+      </div>
     )
   }
 
@@ -55,7 +102,7 @@ export default function Game() {
 
   // ── SLOT SPIN ───────────────────────────────────────────────────────────────
   function handleSlotSpin(cost, modifier) {
-    // jackpot: add 500 chips, skip hand, go to round_end
+    // jackpot: add 500 dollars, skip hand, go to round_end
     if (modifier?.jackpot) {
       updateState({
         balance: state.balance - cost + 500,
@@ -162,17 +209,13 @@ export default function Game() {
 
           {/* Top: dealer + bet area */}
           <div>
-            <Dealer messages={[
-              state.hasRescued && state.balance === 100
-                ? 'You have been fronted 100. Do not forget what you owe.'
-                : 'Place your bet, or try your luck at a machine first.',
-            ]} />
+            <Dealer messages={idleDealerMessages} />
 
             <div style={{ margin: '10px 0' }}>
               <div style={{ color: '#666666', marginBottom: '10px', fontSize: '0.9em' }}>
                 BET:{' '}
                 <span style={{ color: betInput ? '#f0c040' : '#444', fontSize: '1.1em' }}>
-                  {betInput ? `${betInput} chips` : '— select chips below —'}
+                  {betInput ? `${betInput} dollars` : '— select dollars below —'}
                 </span>
               </div>
 
@@ -311,7 +354,7 @@ export default function Game() {
       {state.phase === 'bonus_offer' && (
         <div>
           <Dealer messages={[
-            `You won ${state.roundWinnings} chips.`,
+            `You won ${state.roundWinnings} dollars.`,
             bonusGame === 'dice' && diceOffer ? diceOffer.dealerLine : '',
             bonusGame === 'roulette' ? 'One spin on the wheel. Double or nothing.' : '',
             bonusGame === 'poker' ? `A hand of poker. ${pokerVariant} duel.` : '',
@@ -364,9 +407,9 @@ export default function Game() {
             fontSize: '1.3em',
             marginBottom: '12px',
           }}>
-            {roundResult === 'win' && `ROUND COMPLETE — BALANCE: ${state.balance.toLocaleString()} CHIPS`}
-            {roundResult === 'loss' && `ROUND LOST — BALANCE: ${state.balance.toLocaleString()} CHIPS`}
-            {roundResult === 'push' && `PUSH — BALANCE: ${state.balance.toLocaleString()} CHIPS`}
+            {roundResult === 'win' && `ROUND COMPLETE — BALANCE: ${state.balance.toLocaleString()} DOLLARS`}
+            {roundResult === 'loss' && `ROUND LOST — BALANCE: ${state.balance.toLocaleString()} DOLLARS`}
+            {roundResult === 'push' && `PUSH — BALANCE: ${state.balance.toLocaleString()} DOLLARS`}
           </div>
 
           {state.balance <= 0 && (
