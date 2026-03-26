@@ -6,17 +6,20 @@ import { sounds } from '@/lib/soundEngine'
 const CHAR_DELAY = 40
 const MESSAGE_PAUSE = 600
 
-export default function Dealer({ messages }) {
+export default function Dealer({ messages, onDone }) {
   const [completedMessages, setCompletedMessages] = useState([])
   const [currentText, setCurrentText] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [cursor, setCursor] = useState(true)
+
+  const doneFiredRef = useRef(false)
 
   // Reset when messages prop changes
   useEffect(() => {
     setCompletedMessages([])
     setCurrentText('')
     setCurrentIndex(0)
+    doneFiredRef.current = false
   }, [messages])
 
   // Blink cursor
@@ -24,6 +27,15 @@ export default function Dealer({ messages }) {
     const interval = setInterval(() => setCursor(c => !c), 500)
     return () => clearInterval(interval)
   }, [])
+
+  // Fire onDone when all messages are typed
+  useEffect(() => {
+    if (!messages || messages.length === 0) return
+    if (currentIndex >= messages.length && !doneFiredRef.current) {
+      doneFiredRef.current = true
+      onDone?.()
+    }
+  }, [currentIndex, messages, onDone])
 
   // Typewriter logic
   useEffect(() => {

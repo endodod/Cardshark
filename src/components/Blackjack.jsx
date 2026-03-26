@@ -81,6 +81,7 @@ export default function Blackjack({ gameState, activeModifier, onWin, onLoss, on
   }
 
   function stand() {
+    sounds.typewriter_click()
     runDealerTurn(playerCards, dealerCards, deck, false)
   }
 
@@ -209,8 +210,6 @@ export default function Blackjack({ gameState, activeModifier, onWin, onLoss, on
           }}
         >
           {outcome === 'player_blackjack' && 'BLACKJACK!'}
-          {outcome === 'player_win' && 'YOU WIN'}
-          {outcome === 'dealer_win' && 'DEALER WINS'}
           {outcome === 'push' && 'PUSH'}
         </motion.div>
       )}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { initialState, WIN_TARGET } from '@/lib/gameState'
-import { initSound, setupAudioUnlock } from '@/lib/soundEngine'
+import { initSound, setupAudioUnlock, sounds } from '@/lib/soundEngine'
 import { selectDiceOffer } from '@/lib/diceLogic'
 import HUD from './HUD'
 import Dealer from './Dealer'
@@ -42,6 +42,7 @@ export default function Game() {
   const [pokerVariant, setPokerVariant] = useState('blind')
   const [diceOffer, setDiceOffer] = useState(null)
   const [roundResult, setRoundResult] = useState(null) // 'win' | 'loss' | 'push'
+  const [bonusDealerDone, setBonusDealerDone] = useState(false)
 
   function updateState(patch) {
     setState(prev => ({ ...prev, ...patch }))
@@ -52,6 +53,21 @@ export default function Game() {
       ? 'You have been fronted 100. Do not forget what you owe.'
       : 'Place your bet.',
   ], [state.hasRescued, state.balance])
+
+  const bonusDealerMessages = useMemo(() => [
+    bonusGame === 'dice' && diceOffer ? diceOffer.dealerLine : '',
+    bonusGame === 'roulette' ? 'One spin on the wheel. Double or nothing.' : '',
+    bonusGame === 'poker' ? `A hand of poker. ${pokerVariant} duel.` : '',
+    'Accept the offer, or walk away with your winnings.',
+  ].filter(Boolean), [bonusGame, diceOffer, pokerVariant])
+
+  const bonusMaxWin = bonusGame === 'dice' && diceOffer
+    ? Math.floor(state.roundWinnings * diceOffer.payout)
+    : bonusGame === 'roulette'
+      ? Math.floor(state.roundWinnings * 2)
+      : bonusGame === 'poker'
+        ? Math.floor(state.roundWinnings * ({ blind: 3, flop: 2, full: 1.5 }[pokerVariant] ?? 1))
+        : state.roundWinnings
 
   // ── ENTER ───────────────────────────────────────────────────────────────────
   if (state.phase === 'enter') {
@@ -79,6 +95,7 @@ export default function Game() {
         <div style={{ color: '#80c080', marginBottom: '24px' }}>&gt; YOU MADE IT OUT.</div>
         <button
           onClick={() => {
+            sounds.typewriter_click()
             sessionStorage.removeItem('cardshark_booted')
             setState({ ...initialState, phase: 'enter', hasRescued: false })
             setBetInput('')
@@ -128,6 +145,7 @@ export default function Game() {
     setBonusGame(game)
     if (game === 'dice') setDiceOffer(selectDiceOffer())
     if (game === 'poker') setPokerVariant(selectPokerVariant())
+    setBonusDealerDone(false)
 
     updateState({
       roundWinnings: winnings,
@@ -164,7 +182,7 @@ export default function Game() {
   }
 
   function walkAwayFromBonus() {
-    // Keep round winnings, skip bonus
+    // Walking away before accepting keeps all winnings
     updateState({
       balance: state.balance + state.roundWinnings,
       phase: 'round_end',
@@ -227,7 +245,7 @@ export default function Game() {
                   return (
                     <button
                       key={chip}
-                      onClick={() => setBetInput(String(current + chip))}
+                      onClick={() => { sounds.typewriter_click(); setBetInput(String(current + chip)) }}
                       disabled={disabled}
                       style={{
                         background: 'transparent',
@@ -244,7 +262,7 @@ export default function Game() {
                   )
                 })}
                 <button
-                  onClick={() => setBetInput('')}
+                  onClick={() => { sounds.typewriter_click(); setBetInput('') }}
                   disabled={!betInput}
                   style={{
                     background: 'transparent',
@@ -262,7 +280,7 @@ export default function Game() {
 
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                 <button
-                  onClick={handleBet}
+                  onClick={() => { sounds.typewriter_click(); handleBet() }}
                   disabled={!betInput || parseInt(betInput) <= 0 || parseInt(betInput) > state.balance}
                   style={btnStyle(betInput && parseInt(betInput) > 0 && parseInt(betInput) <= state.balance ? '#f0c040' : '#333')}
                 >
@@ -281,7 +299,7 @@ export default function Game() {
           {/* Bottom: slot machine banner */}
           <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'center', paddingTop: '16px' }}>
             <div
-              onClick={() => updateState({ phase: 'slot' })}
+              onClick={() => { sounds.typewriter_click(); updateState({ phase: 'slot' }) }}
               style={{
                 border: '1px solid #444',
                 padding: '20px 48px',
@@ -353,18 +371,17 @@ export default function Game() {
       {/* ── BONUS OFFER ── */}
       {state.phase === 'bonus_offer' && (
         <div>
-          <Dealer messages={[
-            `You won ${state.roundWinnings} dollars.`,
-            bonusGame === 'dice' && diceOffer ? diceOffer.dealerLine : '',
-            bonusGame === 'roulette' ? 'One spin on the wheel. Double or nothing.' : '',
-            bonusGame === 'poker' ? `A hand of poker. ${pokerVariant} duel.` : '',
-            'Accept the offer, or walk away with your winnings.',
-          ].filter(Boolean)} />
+          <Dealer
+            messages={bonusDealerMessages}
+            onDone={() => setBonusDealerDone(true)}
+          />
 
-          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-            <button onClick={acceptBonus} style={btnStyle('#f0c040')}>ACCEPT</button>
-            <button onClick={walkAwayFromBonus} style={btnStyle('#666666')}>WALK AWAY</button>
-          </div>
+          {bonusDealerDone && (
+            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+              <button onClick={() => { sounds.typewriter_click(); acceptBonus() }} style={btnStyle('#f0c040')}>ACCEPT — WIN {bonusMaxWin} DOLLARS</button>
+              <button onClick={() => { sounds.typewriter_click(); walkAwayFromBonus() }} style={btnStyle('#666666')}>WALK AWAY — KEEP {state.roundWinnings} DOLLARS</button>
+            </div>
+          )}
         </div>
       )}
 
@@ -418,7 +435,7 @@ export default function Game() {
             </div>
           )}
 
-          <button onClick={nextRound} style={btnStyle('#80c080')}>NEXT ROUND</button>
+          <button onClick={() => { sounds.typewriter_click(); nextRound() }} style={btnStyle('#80c080')}>NEXT ROUND</button>
         </div>
       )}
     </div>

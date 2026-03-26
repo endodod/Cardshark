@@ -87,7 +87,7 @@ export default function RouletteGame({ roundWinnings, onWin, onLoss }) {
             {BET_TYPES.map(b => (
               <button
                 key={b.type}
-                onClick={() => setSelectedBet({ type: b.type })}
+                onClick={() => { sounds.typewriter_click(); setSelectedBet({ type: b.type }) }}
                 style={betBtnStyle(selectedBet?.type === b.type, b.type)}
               >
                 {b.label}
@@ -134,8 +134,8 @@ export default function RouletteGame({ roundWinnings, onWin, onLoss }) {
             >
               SPIN
             </button>
-            <button onClick={() => onWin(roundWinnings)} style={btnStyle('#666666')}>
-              WALK AWAY
+            <button onClick={() => { sounds.typewriter_click(); onWin(Math.floor(roundWinnings * 0.5)) }} style={btnStyle('#666666')}>
+              WALK AWAY — KEEP 50%
             </button>
           </div>
         </div>

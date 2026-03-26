@@ -200,7 +200,7 @@ export default function SlotMachine({ balance, onSpin, onSkip }) {
             </button>
           )}
           {!spinning && (
-            <button onClick={() => setView('select')} style={btnStyle('#666666')}>
+            <button onClick={() => { sounds.typewriter_click(); setView('select') }} style={btnStyle('#666666')}>
               ← BACK
             </button>
           )}
@@ -223,7 +223,7 @@ export default function SlotMachine({ balance, onSpin, onSkip }) {
           return (
             <div
               key={machineId}
-              onClick={() => !disabled && openMachine(machineId)}
+              onClick={() => { if (!disabled) { sounds.typewriter_click(); openMachine(machineId) } }}
               style={{
                 border: `1px solid ${disabled ? '#333' : '#666666'}`,
                 padding: '120px 24px',
@@ -258,7 +258,7 @@ export default function SlotMachine({ balance, onSpin, onSkip }) {
 
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <button
-          onClick={onSkip}
+          onClick={() => { sounds.typewriter_click(); onSkip() }}
           style={{
             background: 'transparent',
             border: '1px solid #444',

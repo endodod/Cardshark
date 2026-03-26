@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
             }}>
               <div style={{
                 color: '#f0c040',
-                fontSize: 'clamp(36px, 5vw, 64px)',
+                fontSize: 'clamp(48px, 6vw, 80px)',
                 fontFamily: 'inherit',
                 letterSpacing: '0.12em',
                 lineHeight: 1,
@@ -45,7 +45,7 @@ export default function RootLayout({ children }) {
                 padding: '32px 40px',
                 height: 'clamp(700px, 90vh, 1400px)',
                 overflow: 'hidden',
-                fontSize: 'clamp(20px, 2vw, 30px)',
+                fontSize: 'clamp(26px, 2.6vw, 40px)',
               }}
             >
               {children}

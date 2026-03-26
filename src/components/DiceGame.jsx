@@ -210,7 +210,7 @@ export default function DiceGame({ offer, roundWinnings, hasLoadedDice, onWin, o
       {phase === 'offer' && (
         <div style={{ display: 'flex', gap: '12px' }}>
           <button onClick={doRoll} style={btnStyle('#f0c040')}>ROLL</button>
-          <button onClick={() => onWin(roundWinnings)} style={btnStyle('#666666')}>WALK AWAY</button>
+          <button onClick={() => { sounds.typewriter_click(); onWin(Math.floor(roundWinnings * 0.5)) }} style={btnStyle('#666666')}>WALK AWAY — KEEP 50%</button>
         </div>
       )}
 

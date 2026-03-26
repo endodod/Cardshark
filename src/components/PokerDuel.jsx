@@ -6,6 +6,7 @@ import CardDisplay from './CardDisplay'
 import Dealer from './Dealer'
 import { evaluateBestHand } from '@/lib/pokerLogic'
 import { createDeck, dealCard } from '@/lib/blackjackLogic'
+import { sounds } from '@/lib/soundEngine'
 
 const DEALER_LINES = {
   blind: "Pure cards, pure guts. You in?",
@@ -38,11 +39,13 @@ export default function PokerDuel({ variant, roundWinnings, hasPeekAdvantage, on
   }, [])
 
   function handlePeek() {
+    sounds.card_flip()
     setPeeking(true)
     setTimeout(() => setPeeking(false), 2000)
   }
 
   function goAllIn() {
+    sounds.card_deal()
     setPhase('showdown')
     const startCount = revealCount
     let count = startCount
@@ -145,7 +148,7 @@ export default function PokerDuel({ variant, roundWinnings, hasPeekAdvantage, on
             <button onClick={handlePeek} style={btnStyle('#80c080')}>[PEEK]</button>
           )}
           <button onClick={goAllIn} style={btnStyle('#f0c040')}>GO ALL IN</button>
-          <button onClick={() => onWin(roundWinnings)} style={btnStyle('#666666')}>WALK AWAY</button>
+          <button onClick={() => { sounds.typewriter_click(); onWin(Math.floor(roundWinnings * 0.5)) }} style={btnStyle('#666666')}>WALK AWAY — KEEP 50%</button>
         </div>
       )}
     </div>
